@@ -1,0 +1,28 @@
+package com.example.helpify.entity;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Data
+@Builder
+@Document(collection = "orders")
+@AllArgsConstructor
+@NoArgsConstructor
+public class Order {
+    @Id
+    private String id;
+
+    private String title;
+    private String location;
+    private int reward;
+
+    private String status; // POSTED, ACCEPTED, DELIVERED
+    private double lat;
+    private double lng;
+    private String createdBy;
+    private String acceptedBy;
+}
