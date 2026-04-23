@@ -16,46 +16,35 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    // REGISTER
     @PostMapping("/register")
     public User register(@RequestBody User user) {
         return userService.register(user);
     }
-
-    // LOGIN
     @PostMapping("/login")
     public String login(@RequestBody User user, HttpSession session) {
-        User loggedInUser = userService.login(user.getUsername(), user.getPassword());
+
+        User loggedInUser = userService.login(user.getEmail(), user.getPassword());
 
         session.setAttribute("user", loggedInUser);
 
         return "Login successful";
     }
 
-    // CHECK SESSION
+    // ===== VERIFY OTP =====
+    @PostMapping("/verify")
+    public String verify(@RequestParam String email, @RequestParam String otp) {
+        return userService.verifyOTP(email, otp);
+    }
+
+    // ===== CHECK SESSION =====
     @GetMapping("/me")
     public User getUser(HttpSession session) {
         return (User) session.getAttribute("user");
     }
-
-    // LOGOUT
+    // ===== LOGOUT =====
     @PostMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
         return "Logged out";
-    }
-    @PostMapping("/location")
-    public User updateLocation(@RequestBody Map<String, Double> loc, HttpSession session) {
-
-        User user = (User) session.getAttribute("user");
-
-        if (user == null) {
-            throw new RuntimeException("User not logged in");
-        }
-
-        user.setLatitude(loc.get("lat"));
-        user.setLongitude(loc.get("lng"));
-
-        return userService.save(user);
     }
 }
