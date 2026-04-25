@@ -11,7 +11,13 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://127.0.0.1:5500", allowCredentials = "true")
+@CrossOrigin(
+        origins = {
+                "http://127.0.0.1:5500",
+                "https://helpify-frontend-two.vercel.app/"
+        },
+        allowCredentials = "true"
+)
 public class UserController {
     @Autowired
     private UserService userService;
