@@ -22,8 +22,15 @@
 
         // ===== REGISTER =====
         @PostMapping("/register")
-        public User register(@RequestBody User user) {
-            return userService.register(user);
+        public ResponseEntity<?> register(@RequestBody User user) {
+            try {
+                User newUser = userService.register(user);
+                return ResponseEntity.ok(newUser);
+            } catch (Exception e) {
+                return ResponseEntity
+                        .status(400)
+                        .body(e.getMessage()); // 👈 sends "User already exists"
+            }
         }
         // ===== LOGIN (JWT) =====
         @PostMapping("/login")
