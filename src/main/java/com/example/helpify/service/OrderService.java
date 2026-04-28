@@ -37,6 +37,12 @@ public class OrderService {
         Order o = orderRepository.findById(id).orElseThrow();
 
         User user = userRepository.findByEmail(email).orElseThrow();
+        if (email.equals(o.getPostedBy())) {
+            throw new RuntimeException("You can't accept your own order");
+        }
+        if (o.getStatus().equals("ACCEPTED")) {
+            throw new RuntimeException("Already accepted");
+        }
 
         o.setStatus("ACCEPTED");
         o.setAcceptedBy(email);
