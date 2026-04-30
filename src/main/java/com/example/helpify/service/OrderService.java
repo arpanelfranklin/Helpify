@@ -34,10 +34,17 @@ public class OrderService {
 
         return all.stream()
                 .filter(o -> {
+                    // hide delivered from public
                     if ("DELIVERED".equals(o.getStatus())) {
                         return email.equals(o.getPostedBy()) || email.equals(o.getAcceptedBy());
                     }
-                    return true; // show POSTED + ACCEPTED to all
+
+                    // hide accepted orders from others
+                    if ("ACCEPTED".equals(o.getStatus())) {
+                        return email.equals(o.getAcceptedBy()) || email.equals(o.getPostedBy());
+                    }
+
+                    return true; // only POSTED visible to all
                 })
                 .toList();
     }
@@ -45,7 +52,9 @@ public class OrderService {
     public Order acceptOrder(String id, String email, String name) {
 
         Order o = orderRepository.findById(id).orElseThrow();
-
+        if ("DELIVERED".equals(o.getStatus())) {
+            throw new RuntimeException("Already delivered");
+        }
         User user = userRepository.findByEmail(email).orElseThrow();
         if (email.equals(o.getPostedBy())) {
             throw new RuntimeException("You can't accept your own order");
@@ -62,9 +71,16 @@ public class OrderService {
         return orderRepository.save(o);
     }
 
-    public Order completeOrder(String id) {
+    public Order completeOrder(String id, String email) {
+
         Order order = orderRepository.findById(id).orElseThrow();
+
+        if (!email.equals(order.getAcceptedBy())) {
+            throw new RuntimeException("Only delivery person can complete");
+        }
+
         order.setStatus("DELIVERED");
+
         return orderRepository.save(order);
     }
     public double distance(double lat1, double lon1, double lat2, double lon2) {
@@ -97,6 +113,7 @@ public class OrderService {
     public Order cancelOrder(String id, String email) {
         Order o = orderRepository.findById(id).orElseThrow();
 
+
         if (!email.equals(o.getAcceptedBy())) {
             throw new RuntimeException("Not your order");
         }
@@ -104,27 +121,22 @@ public class OrderService {
         o.setStatus("POSTED");
         o.setAcceptedBy(null);
         o.setAcceptedByName(null);
+        o.setAcceptedByPhone(null);
 
         return orderRepository.save(o);
     }
     public Map<String, Object> getStats(String email) {
 
-        List<Order> orders = orderRepository.findAll();
+        int totalPosted = orderRepository.countByPostedBy(email);
 
-        int totalPosted = (int) orders.stream()
-                .filter(o -> email.equals(o.getPostedBy()))
-                .count();
+        int delivered = orderRepository
+                .countByAcceptedByAndStatus(email, "DELIVERED");
 
-        int delivered = (int) orders.stream()
-                .filter(o -> email.equals(o.getAcceptedBy()) && "DELIVERED".equals(o.getStatus()))
-                .count();
+        int active = orderRepository.countByStatus("POSTED");
 
-        int active = (int) orders.stream()
-                .filter(o -> "POSTED".equals(o.getStatus()))
-                .count();
-
-        int earnings = orders.stream()
-                .filter(o -> email.equals(o.getAcceptedBy()) && "DELIVERED".equals(o.getStatus()))
+        int earnings = orderRepository
+                .findByAcceptedByAndStatus(email, "DELIVERED")
+                .stream()
                 .mapToInt(o -> o.getReward() != 0 ? o.getReward() : 0)
                 .sum();
 
@@ -134,6 +146,7 @@ public class OrderService {
                 "active", active,
                 "earnings", earnings
         );
+
     }
 
 }

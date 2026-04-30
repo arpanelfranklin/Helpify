@@ -20,29 +20,28 @@ public class UserService {
     // ===== REGISTER =====
     public User register(User user) {
 
-        if (!user.getEmail().endsWith("@bennett.edu.in")) {
-            throw new RuntimeException("Only college email allowed");
-        }
-        if (userRepository.findByEmail(user.getEmail().toLowerCase()).isPresent()) {
-            throw new RuntimeException("User already exists");
-        }
+        user.setEmail(user.getEmail().toLowerCase());
 
         if (!user.getEmail().endsWith("@bennett.edu.in")) {
             throw new RuntimeException("Only college email allowed");
         }
-        user.setEmail(user.getEmail().toLowerCase());
+
         Optional<User> existing = userRepository.findByEmail(user.getEmail());
 
         if (existing.isPresent()) {
             User oldUser = existing.get();
 
-            String otp = generateOTP();
-            oldUser.setOtp(otp);
+            // resend OTP only if not verified
+            if (!oldUser.isVerified()) {
+                String otp = generateOTP();
+                oldUser.setOtp(otp);
+                sendEmail(oldUser.getEmail(), otp);
+                return userRepository.save(oldUser);
+            }
 
-            sendEmail(oldUser.getEmail(), otp);
-
-            return userRepository.save(oldUser);
+            throw new RuntimeException("User already exists and verified");
         }
+
         user.setVerified(false);
 
         String otp = generateOTP();
@@ -65,7 +64,9 @@ public class UserService {
         if (!user.getPassword().equals(password)) {
             throw new RuntimeException("Wrong password");
         }
-
+        System.out.println("LOGIN INPUT: " + email + " | " + password);
+        System.out.println("DB PASSWORD: " + user.getPassword());
+        System.out.println("VERIFIED: " + user.isVerified());
         return user;
     }
     // ===== VERIFY OTP =====
@@ -107,23 +108,23 @@ public class UserService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
-    public User updateProfile(String email, User updatedData) {
-
-        User user = userRepository.findByEmail(email).orElseThrow();
-
-        if (updatedData.getUsername() != null)
-            user.setUsername(updatedData.getUsername());
-
-        if (updatedData.getPhone() != null)
-            user.setPhone(updatedData.getPhone());
-
-        if (updatedData.getHostelBlock() != null)
-            user.setHostelBlock(updatedData.getHostelBlock());
-
-        if (updatedData.getRoomNumber() != null)
-            user.setRoomNumber(updatedData.getRoomNumber());
-
-        return userRepository.save(user);
-    }
+//    public User updateProfile(String email, User updatedData) {
+//
+//        User user = userRepository.findByEmail(email).orElseThrow();
+//
+//        if (updatedData.getUsername() != null)
+//            user.setUsername(updatedData.getUsername());
+//
+//        if (updatedData.getPhone() != null)
+//            user.setPhone(updatedData.getPhone());
+//
+//        if (updatedData.getHostelBlock() != null)
+//            user.setHostelBlock(updatedData.getHostelBlock());
+//
+//        if (updatedData.getRoomNumber() != null)
+//            user.setRoomNumber(updatedData.getRoomNumber());
+//
+//        return userRepository.save(user);
+//    }
 
 }

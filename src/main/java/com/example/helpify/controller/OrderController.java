@@ -70,7 +70,7 @@ public class OrderController {
             throw new RuntimeException("Not logged in");
         }
 
-        return orderService.completeOrder(id);
+        return orderService.completeOrder(id, email);
     }
 
     // ===== CANCEL ORDER =====
