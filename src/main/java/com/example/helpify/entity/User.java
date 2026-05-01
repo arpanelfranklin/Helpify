@@ -24,6 +24,7 @@ public class User {
     private Boolean verified = false;
 
     private String otp; // for email verification
+    private String gender; // Male or Female
 
     private Double latitude;
     private Double longitude;

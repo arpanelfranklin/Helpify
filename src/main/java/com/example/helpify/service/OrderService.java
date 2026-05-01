@@ -23,6 +23,7 @@ public class OrderService {
         order.setPostedBy(email);
         order.setPostedByName(user.getUsername());
         order.setPostedByPhone(user.getPhone());
+        order.setPostedByGender(user.getGender());
 
         order.setCreatedAt(new Date());
 
@@ -63,10 +64,15 @@ public class OrderService {
             throw new RuntimeException("Already accepted");
         }
 
+        if (o.getPreferredGender() != null && !o.getPreferredGender().equalsIgnoreCase("Any") && !o.getPreferredGender().equalsIgnoreCase(user.getGender())) {
+            throw new RuntimeException("Only " + o.getPreferredGender() + " users can accept this request.");
+        }
+
         o.setStatus("ACCEPTED");
         o.setAcceptedBy(email);
         o.setAcceptedByName(user.getUsername());
         o.setAcceptedByPhone(user.getPhone());
+        o.setAcceptedByGender(user.getGender());
 
         return orderRepository.save(o);
     }
