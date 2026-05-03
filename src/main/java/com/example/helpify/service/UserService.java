@@ -15,7 +15,7 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private JavaMailSender mailSender;
+    private EmailService emailService;
 
     // ===== REGISTER =====
     public User register(User user) {
@@ -91,18 +91,7 @@ public class UserService {
 
     // ===== SEND EMAIL =====
     public void sendEmail(String to, String otp) {
-
-        SimpleMailMessage msg = new SimpleMailMessage();
-
-        msg.setFrom("helpify.uni@gmail.com"); // 🔥 VERY IMPORTANT (must match SendGrid sender)
-
-        msg.setTo(to);
-        msg.setSubject("Helpify OTP Verification");
-        msg.setText("Your OTP is: " + otp);
-
-        System.out.println("OTP SENT: " + otp);
-
-        mailSender.send(msg);
+        emailService.sendEmail(to, otp);
     }
     // ===== SAVE USER (for location updates etc.) =====
     public User save(User user) {
