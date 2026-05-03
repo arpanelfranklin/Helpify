@@ -94,4 +94,27 @@
 //                return ResponseEntity.status(400).body(e.getMessage());
 //            }
 //        }
+        // ===== FORGOT PASSWORD =====
+@PostMapping("/forgot-password")
+public ResponseEntity<?> forgotPassword(@RequestParam String email) {
+    try {
+        return ResponseEntity.ok(userService.forgotPassword(email));
+    } catch (Exception e) {
+        return ResponseEntity.status(400).body(e.getMessage());
+    }
+}
+
+// ===== RESET PASSWORD =====
+@PostMapping("/reset-password")
+public ResponseEntity<?> resetPassword(
+        @RequestParam String email,
+        @RequestParam String otp,
+        @RequestParam String newPassword
+) {
+    try {
+        return ResponseEntity.ok(userService.resetPassword(email, otp, newPassword));
+    } catch (Exception e) {
+        return ResponseEntity.status(400).body(e.getMessage());
+    }
+}
     }
