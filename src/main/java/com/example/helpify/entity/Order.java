@@ -33,4 +33,8 @@ public class Order {
     private String postedByPhone;
 
     private String acceptedByPhone;
+
+    private String preferredGender;
+    private String postedByGender;
+    private String acceptedByGender;
 }

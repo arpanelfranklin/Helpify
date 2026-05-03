@@ -126,5 +126,39 @@ public class UserService {
 //
 //        return userRepository.save(user);
 //    }
+    // ===== FORGOT PASSWORD (SEND OTP) =====
+public String forgotPassword(String email) {
+    email = email.toLowerCase();
+
+    User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+    String otp = generateOTP();
+    user.setOtp(otp);
+
+    sendEmail(email, otp);
+
+    userRepository.save(user);
+
+    return "OTP sent to email";
+}
+
+// ===== RESET PASSWORD =====
+public String resetPassword(String email, String otp, String newPassword) {
+
+    User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+    if (!otp.equals(user.getOtp())) {
+        throw new RuntimeException("Invalid OTP");
+    }
+
+    user.setPassword(newPassword);
+    user.setOtp(null);
+
+    userRepository.save(user);
+
+    return "Password updated successfully";
+}
 
 }
