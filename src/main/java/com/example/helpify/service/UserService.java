@@ -134,6 +134,7 @@ public String forgotPassword(String email) {
             .orElseThrow(() -> new RuntimeException("User not found"));
 
     String otp = generateOTP();
+    System.out.println("RESET OTP: " + otp);
     user.setOtp(otp);
 
     sendEmail(email, otp);
