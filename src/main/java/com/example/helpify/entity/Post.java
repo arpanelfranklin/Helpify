@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 
 @Data
@@ -17,12 +18,20 @@ import java.util.ArrayList;
 public class Post {
     @Id
     private String id;
-    private String username;
+    private String userId;
+    private String postedByEmail;
+    private String postedByName;
+    private String postedByGender;
     private String type; // campusTea, seniorGuidance, randomQuestion
     private String content;
-    private ArrayList<String> comments;
-    private int likes;
-
+    private List<Comment> comments = new ArrayList<>();
+    private List<String> imageUrls = new ArrayList<>();
+    private List<String> likedBy = new ArrayList<>();
+    private boolean active = true;
+    private boolean anonymous = false;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private LocalDateTime postedAt;
+    private LocalDateTime createdAt;
+    private boolean edited = false;
+    private LocalDateTime editedAt;
+    private int views = 0;
 }
